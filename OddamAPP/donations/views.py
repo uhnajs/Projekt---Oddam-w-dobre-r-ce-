@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth import login
 from django.contrib import messages
 from django.http import HttpResponse
+from .forms import RegisterForm
 
 
 def landing_page(request):
@@ -34,27 +35,13 @@ def login_view(request):
 
 def register(request):
     if request.method == 'POST':
-        username = request.POST['email']
-        first_name = request.POST['name']
-        last_name = request.POST['surname']
-        email = request.POST['email']
-        password = request.POST['password']
-        password2 = request.POST['password2']
-
-        if password == password2:
-            if User.objects.filter(email=email).exists():
-                messages.error(request, 'Ten adres email jest już zajęty.')
-                return redirect('register')
-            else:
-                user = User.objects.create_user(username=username, password=password, email=email, first_name=first_name, last_name=last_name)
-                user.save()
-                login(request, user)
-                return redirect('landing-page')
-        else:
-            messages.error(request, 'Hasła nie są identyczne.')
-            return redirect('register')
+        form = RegisterForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('login')
     else:
-        return render(request, 'register.html')
+        form = RegisterForm()
+    return render(request, 'register.html', {'form': form})
 
 def form(request):
     return render(request, 'form.html')
