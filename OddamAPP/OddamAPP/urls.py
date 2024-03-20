@@ -16,12 +16,13 @@ Including another URLconf
 """
 
 from django.urls import path
-from donations.views import landing_page, add_donation, login_view, register, form
+from donations.views import landing_page, add_donation, login_view, register_view, form
+
 
 urlpatterns = [
     path('', landing_page, name='landing-page'),
     path('add-donation/', add_donation, name='add-donation'),
     path('login/', login_view, name='login'),
-    path('register/', register, name='register'),
+    path('register/', register_view, name='register'),
     path('form/', form, name='form'),
 ]

@@ -2,10 +2,10 @@ from django.db.models import Sum
 from django.shortcuts import render, redirect
 from .models import Donation, Institution
 from django.contrib.auth.models import User
-from django.contrib.auth import login
+from django.contrib.auth import login, authenticate
 from django.contrib import messages
 from django.http import HttpResponse
-from .forms import RegisterForm
+from .forms import RegistrationForm
 
 
 def landing_page(request):
@@ -33,15 +33,21 @@ def add_donation(request):
 def login_view(request):
     return render(request, 'login.html')
 
-def register(request):
+def register_view(request):
     if request.method == 'POST':
-        form = RegisterForm(request.POST)
+        form = RegistrationForm(request.POST)
         if form.is_valid():
-            form.save()
-            return redirect('login')
+            user = form.save()
+            login(request, user)
+            return redirect('landing-page')
+        else:
+            # Dodaj informacje o błędach walidacji
+            return render(request, 'register.html', {
+                'form': form,
+                'errors': form.errors
+            })
     else:
-        form = RegisterForm()
+        form = RegistrationForm()
     return render(request, 'register.html', {'form': form})
-
 def form(request):
     return render(request, 'form.html')
