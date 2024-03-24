@@ -6,6 +6,87 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta http-equiv="X-UA-Compatible" content="ie=edge" />
   <title>{% block title %}Zarejestruj się{% endblock %}</title>
+<style>
+    body, html {
+      height: 100%;
+      margin: 0;
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      background: url('path_to_your_background_image.jpg') no-repeat center center fixed;
+      -webkit-background-size: cover;
+      -moz-background-size: cover;
+      -o-background-size: cover;
+      background-size: cover;
+      color: #333;
+    }
+    .wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+    }
+    .registration-form {
+      background: white;
+      padding: 40px 50px 30px;
+      width: 300px;
+      box-shadow: 0 4px 8px 0 rgba(0,0,0,0.1);
+      border-radius: 5px;
+      text-align: center;
+    }
+    h2 {
+      font-size: 22px;
+      color: #333;
+      margin-bottom: 25px;
+    }
+    .form-field {
+      margin-bottom: 10px;
+      text-align: left;
+    }
+    .form-field label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 500;
+    }
+    input[type=email], input[type=password], input[type=text] {
+      width: 100%;
+      font-size: 14px;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+    .form-button {
+      background-color: #5cb85c;
+      color: white;
+      padding: 10px 15px;
+      margin-top: 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      width: 100%;
+      box-shadow: 0 2px 4px 0 rgba(0,0,0,0.2);
+      transition: all 0.3s ease;
+    }
+    .form-button:hover {
+      background-color: #4cae4c;
+    }
+    .login-link {
+      display: block;
+      margin-top: 20px;
+      color: #5cb85c;
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+    .login-link:hover {
+      color: #4cae4c;
+    }
+    .decorative-line {
+      margin: 20px auto;
+      height: 1px;
+      background: #ccc;
+      width: 80%;
+    }
+  </style>
   <link rel="stylesheet" href="{% static 'css/style.css' %}" />
 </head>
 
@@ -26,38 +107,43 @@
       </ul>
     </nav>
   </header>
-
-      <section class="registration-form">
-          <form method="post" action="{% url 'register' %}">
-            {% csrf_token %}
-            <div class="form-field">
-                {{ form.username }}  <!-- Nie wyświetlaj etykiety -->
-                {% if form.username.errors %}
-                    <span class="error">{{ form.username.errors }}</span>
-                {% endif %}
-            </div>
-            <div class="form-field">
-                {{ form.email }}  <!-- Nie wyświetlaj etykiety -->
-                {% if form.email.errors %}
-                    <span class="error">{{ form.email.errors }}</span>
-                {% endif %}
-            </div>
-            <div class="form-field">
-                {{ form.password1 }}  <!-- Nie wyświetlaj etykiety -->
-                {% if form.password1.errors %}
-                    <span class="error">{{ form.password1.errors }}</span>
-                {% endif %}
-            </div>
-            <div class="form-field">
-                {{ form.password2 }}
-                {% if form.password2.errors %}
-                    <span class="error">{{ form.password2.errors }}</span>
-                {% endif %}
-            </div>
-            <a href="login.html" class="btn btn--without-border">Zaloguj się</a>
-            <button class="btn" type="submit">Załóż konto</button>
-          </form>
-      </section>
+   <section class="registration-form">
+    <form method="post" action="{% url 'register' %}">
+      {% csrf_token %}
+      <div class="form-field">
+          {{ form.email }}
+          {% if form.email.errors %}
+              <span class="error">{{ form.email.errors }}</span>
+          {% endif %}
+      </div>
+      <div class="form-field">
+          {{ form.first_name }}
+          {% if form.first_name.errors %}
+              <span class="error">{{ form.first_name.errors }}</span>
+          {% endif %}
+      </div>
+      <div class="form-field">
+          {{ form.last_name }}
+          {% if form.last_name.errors %}
+              <span class="error">{{ form.last_name.errors }}</span>
+          {% endif %}
+      </div>
+      <div class="form-field">
+          {{ form.password1 }}
+          {% if form.password1.errors %}
+              <span class="error">{{ form.password1.errors }}</span>
+          {% endif %}
+      </div>
+      <div class="form-field">
+          {{ form.password2 }}
+          {% if form.password2.errors %}
+              <span class="error">{{ form.password2.errors }}</span>
+          {% endif %}
+      </div>
+          <a href="login.html" class="btn btn--without-border">Zaloguj się</a>
+          <button class="btn" type="submit">Załóż konto</button>
+    </form>
+  </section>
     <footer>
       <div class="contact">
         <h2>Skontaktuj się z nami</h2>

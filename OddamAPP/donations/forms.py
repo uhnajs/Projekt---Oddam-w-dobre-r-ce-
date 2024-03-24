@@ -4,16 +4,19 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 import re
 
-
 class RegistrationForm(UserCreationForm):
-    username = forms.CharField(
-        label="Nazwa użytkownika",
-        widget=forms.TextInput(attrs={'placeholder': 'Nazwa użytkownika'}),
-        help_text="Wymagane. 150 znaków lub mniej. Tylko litery, cyfry oraz @/./+/-/_ ."
-    )
     email = forms.EmailField(
         label="Email",
-        widget=forms.EmailInput(attrs={'placeholder': 'Email'}),
+        widget=forms.TextInput(attrs={'placeholder': 'Email'}),
+        help_text="Wymagane. Wprowadź ważny adres e-mail."
+    )
+    first_name = forms.CharField(
+        label="Imię",
+        widget=forms.TextInput(attrs={'placeholder': 'Imię'})
+    )
+    last_name = forms.CharField(
+        label="Nazwisko",
+        widget=forms.TextInput(attrs={'placeholder': 'Nazwisko'})
     )
     password1 = forms.CharField(
         label="Hasło",
@@ -28,14 +31,14 @@ class RegistrationForm(UserCreationForm):
 
     class Meta:
         model = User
-        fields = ('username', 'email', 'password1', 'password2')
+        fields = ('email', 'first_name', 'last_name', 'password1', 'password2')
 
-    def clean_password1(self):
-        password = self.cleaned_data.get('password1')
-        if not re.search(r"\d", password):
-            raise ValidationError("Hasło musi zawierać przynajmniej jedną cyfrę.")
-        if not re.search(r"[!@#$%^&*(),.?\":{}|<>]", password):
-            raise ValidationError("Hasło musi zawierać przynajmniej jeden znak specjalny.")
-        if len(password) < 8:
-            raise ValidationError("Hasło musi zawierać przynajmniej 8 znaków.")
-        return password
+    def save(self, commit=True):
+        user = super(RegistrationForm, self).save(commit=False)
+        user.email = self.cleaned_data['email']
+        user.username = self.cleaned_data['email']  # Use email as username
+        user.first_name = self.cleaned_data['first_name']
+        user.last_name = self.cleaned_data['last_name']
+        if commit:
+            user.save()
+        return user
