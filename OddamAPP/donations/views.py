@@ -1,12 +1,13 @@
 from django.db.models import Sum
 from django.shortcuts import render, redirect
-from .models import Donation, Institution
+from .models import Donation, Institution, Category
+from django.urls import reverse
 from django.contrib.auth.models import User
-from django.contrib.auth import login, authenticate
+from django.contrib.auth import login, authenticate, logout
 from django.contrib import messages
 from django.http import HttpResponse
 from .forms import RegistrationForm
-
+from django.contrib.auth.decorators import login_required
 
 def landing_page(request):
     total_bags = Donation.objects.aggregate(Sum('quantity'))
@@ -25,13 +26,39 @@ def landing_page(request):
 
     return render(request, 'index.html', context)
 
-
+@login_required
 def add_donation(request):
-    return render(request, 'add_donation.html')
+    categories = Category.objects.all()
+    context = {'categories': categories}
+    return render(request, 'add_donation.html', context)
 
-# Widok logowania
+
 def login_view(request):
-    return render(request, 'login.html')
+    if request.method == 'POST':
+        # Get the username and password from the POST request
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+
+        # Use Django's built-in authentication function to verify the user
+        user = authenticate(request, username=username, password=password)
+
+        if user is not None:
+            # If the credentials are correct, log the user in
+            login(request, user)
+            # Redirect to the desired page after login
+            return redirect(reverse('landing-page'))  # Replace 'landing-page' with your landing page view name
+        else:
+            # If credentials are incorrect, stay on the login page and show an error
+            return render(request, 'login.html', {
+                'error': 'Invalid username or password'
+            })
+    else:
+        # If it's a GET request, just render the login page
+        return render(request, 'login.html')
+
+def logout_view(request):
+    logout(request)
+    return redirect('landing-page')
 
 def register_view(request):
     if request.method == 'POST':
@@ -49,5 +76,12 @@ def register_view(request):
     else:
         form = RegistrationForm()
     return render(request, 'register.html', {'form': form})
+
+
+@login_required
 def form(request):
-    return render(request, 'form.html')
+
+    categories = Category.objects.all()
+    if request.method == 'POST':
+        pass
+    return render(request, 'form.html', {'categories': categories})
