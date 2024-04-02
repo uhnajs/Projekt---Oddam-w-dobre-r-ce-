@@ -26,11 +26,6 @@ def landing_page(request):
 
     return render(request, 'index.html', context)
 
-@login_required
-def add_donation(request):
-    categories = Category.objects.all()
-    context = {'categories': categories}
-    return render(request, 'add_donation.html', context)
 
 
 def login_view(request):
@@ -80,8 +75,94 @@ def register_view(request):
 
 @login_required
 def form(request):
+    if request.method == 'POST':
+        step = request.POST.get('step', '1')
+        if step == '1':
+            selected_categories = request.POST.getlist('categories')
+            request.session['selected_categories'] = selected_categories
+            return redirect(f'{reverse("form")}?step=2')
+        elif step == '2':
+            number_of_bags = request.POST.get('bags')
+            request.session['number_of_bags'] = number_of_bags
+            return redirect(f'{reverse("form")}?step=3')
+        elif step == '3':
+            selected_institution = request.POST.get('institution')
+            request.session['selected_institution'] = selected_institution
+            return redirect(f'{reverse("form")}?step=4')
+        elif step == '4':
+            pickup_details = {
+                'address': request.POST.get('address'),
+                'city': request.POST.get('city'),
+                'zip_code': request.POST.get('zip_code'),
+                'phone_number': request.POST.get('phone_number'),
+                'pick_up_date': request.POST.get('pick_up_date'),
+                'pick_up_time': request.POST.get('pick_up_time'),
+                'pick_up_comment': request.POST.get('pick_up_comment'),
+            }
+            request.session['pickup_details'] = pickup_details
+            return redirect(f'{reverse("form")}?step=summary')
+    else:
+        step = request.GET.get('step', '1')
+        categories = Category.objects.all() if step == '1' else None
+        institutions = Institution.objects.all() if step == '3' else None
+        selected_categories = request.session.get('selected_categories', [])
+        number_of_bags = request.session.get('number_of_bags', '')
+        selected_institution = request.session.get('selected_institution', '')
+        pickup_details = request.session.get('pickup_details', {})
+
+        context = {
+            'step': step,
+            'categories': categories,
+            'selected_categories': selected_categories,
+            'number_of_bags': number_of_bags,
+            'institutions': institutions,
+            'selected_institution': selected_institution,
+            'pickup_details': pickup_details,
+        }
+        return render(request, 'form.html', context)
+
+
+
+# @login_required
+# def form_summary(request):
+#     # Pobieranie danych z sesji
+#     selected_categories = request.session.get('selected_categories', [])
+#     number_of_bags = request.session.get('number_of_bags')
+#     selected_institution = request.session.get('selected_institution')
+#     pickup_details = request.session.get('pickup_details', {})
+#
+#     # Tutaj możesz przekształcić ID kategorii na ich nazwy, jeśli jest taka potrzeba
+#     categories = Category.objects.filter(id__in=selected_categories)
+#
+#     # Podobnie z instytucją
+#     institution = Institution.objects.get(id=selected_institution)
+#
+#     context = {
+#         'categories': categories,
+#         'number_of_bags': number_of_bags,
+#         'institution': institution,
+#         'pickup_details': pickup_details,
+#     }
+#
+#     return render(request, 'form_summary.html', context)
+
+
+@login_required
+def add_donation(request):
+    if request.method == 'POST':
+        # Tutaj przetwarzasz wybrane kategorie
+        selected_categories_ids = request.POST.getlist('categories')
+        request.session['selected_categories'] = selected_categories_ids
+        # Przekierowujesz do następnego kroku
+        return redirect('select_institution')  # Załóżmy, że tak nazywa się widok wyboru instytucji
 
     categories = Category.objects.all()
-    if request.method == 'POST':
-        pass
-    return render(request, 'form.html', {'categories': categories})
+    context = {'categories': categories}
+    return render(request, 'add_donation.html', context)
+
+@login_required
+def select_institution(request):
+    selected_categories = request.session.get('selected_categories')
+    institutions = Institution.objects.filter(categories__id__in=selected_categories).distinct()
+    context = {'institutions': institutions}
+    return render(request, 'select_institution.html', context)

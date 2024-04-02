@@ -1,13 +1,11 @@
 document.addEventListener("DOMContentLoaded", function() {
-  /**
-   * HomePage - Help section
-   */
+
   class Help {
-    constructor($el) {
-      this.$el = $el;
-      this.$buttonsContainer = $el.querySelector(".help--buttons");
-      this.$slidesContainers = $el.querySelectorAll(".help--slides");
-      this.currentSlide = this.$buttonsContainer.querySelector(".active").parentElement.dataset.id;
+    constructor(el) {
+      this.el = el;
+      this.buttonsContainer = this.el.querySelector(".help--buttons");
+      this.slidesContainers = this.el.querySelectorAll(".help--slides");
+      this.currentSlide = this.buttonsContainer.querySelector(".active").parentElement.getAttribute('data-id');
       this.init();
     }
 
@@ -16,20 +14,14 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     events() {
-      /**
-       * Slide buttons
-       */
-      this.$buttonsContainer.addEventListener("click", e => {
+      this.buttonsContainer.addEventListener("click", (e) => {
         if (e.target.classList.contains("btn")) {
           this.changeSlide(e);
         }
       });
 
-      /**
-       * Pagination buttons
-       */
-      this.$el.addEventListener("click", e => {
-        if (e.target.classList.contains("btn") && e.target.parentElement.parentElement.classList.contains("help--slides-pagination")) {
+      this.el.addEventListener("click", (e) => {
+        if (e.target.classList.contains("btn") && e.target.closest(".help--slides-pagination")) {
           this.changePage(e);
         }
       });
@@ -37,219 +29,161 @@ document.addEventListener("DOMContentLoaded", function() {
 
     changeSlide(e) {
       e.preventDefault();
-      const $btn = e.target;
-
-      // Buttons Active class change
-      [...this.$buttonsContainer.children].forEach(btn => btn.firstElementChild.classList.remove("active"));
-      $btn.classList.add("active");
-
-      // Current slide
-      this.currentSlide = $btn.parentElement.dataset.id;
-
-      // Slides active class change
-      this.$slidesContainers.forEach(el => {
-        el.classList.remove("active");
-
-        if (el.dataset.id === this.currentSlide) {
-          el.classList.add("active");
+      const btn = e.target;
+      this.buttonsContainer.querySelectorAll(".btn").forEach(button => button.classList.remove("active"));
+      btn.classList.add("active");
+      this.currentSlide = btn.parentElement.getAttribute('data-id');
+      this.slidesContainers.forEach(container => {
+        container.classList.remove("active");
+        if (container.getAttribute('data-id') === this.currentSlide) {
+          container.classList.add("active");
         }
       });
     }
 
-    /**
-     * TODO: callback to page change event
-     */
     changePage(e) {
       e.preventDefault();
-      const page = e.target.dataset.page;
-
-      console.log(page);
+      const page = e.target.getAttribute('data-page');
+      // Implement logic to change to the page number received in 'page'
+      console.log('Change to page: ', page);
     }
   }
-  const helpSection = document.querySelector(".help");
-  if (helpSection !== null) {
-    new Help(helpSection);
-  }
 
-  /**
-   * Form Select
-   */
   class FormSelect {
-    constructor($el) {
-      this.$el = $el;
-      this.options = [...$el.children];
-      this.init();
+    constructor(el) {
+      this.el = el;
+      this.options = Array.from(this.el.options);
+      this.createDropdown();
+      this.bindEvents();
     }
 
-    init() {
-      this.createElements();
-      this.addEvents();
-      this.$el.parentElement.removeChild(this.$el);
-    }
+    createDropdown() {
+      const dropdown = document.createElement("div");
+      dropdown.className = "dropdown";
 
-    createElements() {
-      // Input for value
-      this.valueInput = document.createElement("input");
-      this.valueInput.type = "text";
-      this.valueInput.name = this.$el.name;
+      this.selected = document.createElement("div");
+      this.selected.textContent = this.options[0].text;
+      dropdown.appendChild(this.selected);
 
-      // Dropdown container
-      this.dropdown = document.createElement("div");
-      this.dropdown.classList.add("dropdown");
-
-      // List container
-      this.ul = document.createElement("ul");
-
-      // All list options
-      this.options.forEach((el, i) => {
-        const li = document.createElement("li");
-        li.dataset.value = el.value;
-        li.innerText = el.innerText;
-
-        if (i === 0) {
-          // First clickable option
-          this.current = document.createElement("div");
-          this.current.innerText = el.innerText;
-          this.dropdown.appendChild(this.current);
-          this.valueInput.value = el.value;
-          li.classList.add("selected");
+      this.list = document.createElement("ul");
+      this.options.forEach(option => {
+        const listItem = document.createElement("li");
+        listItem.textContent = option.text;
+        listItem.dataset.value = option.value;
+        if (option.selected) {
+          listItem.classList.add("selected");
+          this.selected.textContent = option.text;
         }
-
-        this.ul.appendChild(li);
+        this.list.appendChild(listItem);
       });
 
-      this.dropdown.appendChild(this.ul);
-      this.dropdown.appendChild(this.valueInput);
-      this.$el.parentElement.appendChild(this.dropdown);
+      dropdown.appendChild(this.list);
+      this.el.style.display = 'none';
+      this.el.parentNode.insertBefore(dropdown, this.el.nextSibling);
     }
 
-    addEvents() {
-      this.dropdown.addEventListener("click", e => {
-        const target = e.target;
-        this.dropdown.classList.toggle("selecting");
+    bindEvents() {
+      this.selected.addEventListener("click", () => {
+        this.list.classList.toggle("show");
+      });
 
-        // Save new value only when clicked on li
-        if (target.tagName === "LI") {
-          this.valueInput.value = target.dataset.value;
-          this.current.innerText = target.innerText;
-        }
+      this.list.querySelectorAll("li").forEach(listItem => {
+        listItem.addEventListener("click", (e) => {
+          this.selected.textContent = e.target.textContent;
+          this.list.querySelector(".selected")?.classList.remove("selected");
+          e.target.classList.add("selected");
+          this.el.value = e.target.dataset.value;
+          this.list.classList.remove("show");
+        });
       });
     }
   }
-  document.querySelectorAll(".form-group--dropdown select").forEach(el => {
-    new FormSelect(el);
-  });
 
-  /**
-   * Hide elements when clicked on document
-   */
-  document.addEventListener("click", function(e) {
-    const target = e.target;
-    const tagName = target.tagName;
-
-    if (target.classList.contains("dropdown")) return false;
-
-    if (tagName === "LI" && target.parentElement.parentElement.classList.contains("dropdown")) {
-      return false;
-    }
-
-    if (tagName === "DIV" && target.parentElement.classList.contains("dropdown")) {
-      return false;
-    }
-
-    document.querySelectorAll(".form-group--dropdown .dropdown").forEach(el => {
-      el.classList.remove("selecting");
-    });
-  });
-
-  /**
-   * Switching between form steps
-   */
   class FormSteps {
     constructor(form) {
-      this.$form = form;
-      this.$next = form.querySelectorAll(".next-step");
-      this.$prev = form.querySelectorAll(".prev-step");
-      this.$step = form.querySelector(".form--steps-counter span");
+      this.form = form;
+      this.nextButtons = this.form.querySelectorAll(".next-step");
+      this.prevButtons = this.form.querySelectorAll(".prev-step");
+      this.stepsCounter = this.form.querySelector(".form--steps-counter span");
       this.currentStep = 1;
-
-      this.$stepInstructions = form.querySelectorAll(".form--steps-instructions p");
-      const $stepForms = form.querySelectorAll("form > div");
-      this.slides = [...this.$stepInstructions, ...$stepForms];
-
-      this.init();
+      this.stepsForms = this.form.querySelectorAll("form > div");
+      this.donationData = {};
+      this.bindEvents();
     }
 
-    /**
-     * Init all methods
-     */
-    init() {
-      this.events();
-      this.updateForm();
-    }
-
-    /**
-     * All events that are happening in form
-     */
-    events() {
-      // Next step
-      this.$next.forEach(btn => {
-        btn.addEventListener("click", e => {
+    bindEvents() {
+      this.nextButtons.forEach(button => {
+        button.addEventListener("click", e => {
           e.preventDefault();
-          this.currentStep++;
-          this.updateForm();
+          this.collectData(this.currentStep);
+          if (this.validateCurrentStep()) {
+            this.goToNextStep();
+          }
         });
       });
 
-      // Previous step
-      this.$prev.forEach(btn => {
-        btn.addEventListener("click", e => {
+      this.prevButtons.forEach(button => {
+        button.addEventListener("click", e => {
           e.preventDefault();
-          this.currentStep--;
-          this.updateForm();
+          this.goToPrevStep();
         });
       });
 
-      // Form submit
-      this.$form.querySelector("form").addEventListener("submit", e => this.submit(e));
+      this.form.addEventListener("submit", e => {
+        e.preventDefault();
+        this.submitForm();
+      });
     }
 
-    /**
-     * Update form front-end
-     * Show next or previous section etc.
-     */
-    updateForm() {
-      this.$step.innerText = this.currentStep;
+    collectData(step) {
+      // Logic to collect data based on step
+      // Update this.donationData with the values from the form elements
+    }
 
-      // TODO: Validation
+    validateCurrentStep() {
+      // Logic to validate current step fields
+      // Return true if valid, false otherwise
+      return true;
+    }
+    goToNextStep() {
+      this.currentStep++;
+      if (this.currentStep > 5) this.currentStep = 5; // Zapobiegaj przekroczeniu liczby kroków
+      this.updateStepDisplay();
+    }
 
-      this.slides.forEach(slide => {
-        slide.classList.remove("active");
+    goToPrevStep() {
+      this.currentStep--;
+      if (this.currentStep < 1) this.currentStep = 1; // Zapobiegaj spadaniu poniżej 1
+      this.updateStepDisplay();
+    }
 
-        if (slide.dataset.step == this.currentStep) {
-          slide.classList.add("active");
+    updateStepDisplay() {
+      this.stepsCounter.textContent = this.currentStep;
+      this.stepsForms.forEach(form => {
+        form.classList.remove("active");
+        if (parseInt(form.dataset.step, 10) === this.currentStep) {
+          form.classList.add("active");
         }
       });
-
-      this.$stepInstructions[0].parentElement.parentElement.hidden = this.currentStep >= 6;
-      this.$step.parentElement.hidden = this.currentStep >= 6;
-
-      // TODO: get data from inputs and show them in summary
     }
-
-    /**
-     * Submit form
-     *
-     * TODO: validation, send data to server
-     */
-    submit(e) {
-      e.preventDefault();
-      this.currentStep++;
-      this.updateForm();
+    submitForm() {
+      // AJAX request to submit the form data
+      // Use this.donationData as the data to submit
     }
   }
-  const form = document.querySelector(".form--steps");
-  if (form !== null) {
-    new FormSteps(form);
+
+  // Initialization code
+  const helpSectionElement = document.querySelector(".help");
+  if (helpSectionElement) {
+    new Help(helpSectionElement);
+  }
+
+  document.querySelectorAll(".form-group--dropdown select").forEach(selectElement => {
+    new FormSelect(selectElement);
+  });
+
+  const formStepsElement = document.querySelector(".form--steps");
+  if (formStepsElement) {
+    new FormSteps(formStepsElement);
   }
 });
