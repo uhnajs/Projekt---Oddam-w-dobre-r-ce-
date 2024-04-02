@@ -2,13 +2,39 @@ from django.db.models import Sum
 from django.shortcuts import render, redirect
 from .models import Donation, Institution, Category
 from django.urls import reverse
-from django.contrib.auth.models import User
 from django.contrib.auth import login, authenticate, logout
-from django.contrib import messages
-from django.http import HttpResponse
-from .forms import RegistrationForm
+from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib.auth import update_session_auth_hash
+from .forms import UserEditForm, RegistrationForm
 from django.contrib.auth.decorators import login_required
 
+
+@login_required
+def user_settings(request):
+    user = request.user
+
+    if request.method == 'POST':
+        user_form = UserEditForm(request.POST, instance=user)
+        password_form = PasswordChangeForm(user, request.POST)
+
+        if user_form.is_valid():
+            user_form.save()
+            return redirect('user_profile')
+
+        if password_form.is_valid():
+            user = password_form.save()
+            update_session_auth_hash(request, user)  # Zaktualizuj sesję, aby uniknąć wylogowania
+            return redirect('user_profile')
+    else:
+        user_form = UserEditForm(instance=user)
+        password_form = PasswordChangeForm(user)
+
+    context = {
+        'user_form': user_form,
+        'password_form': password_form
+    }
+
+    return render(request, 'user_settings.html', context)
 def landing_page(request):
     total_bags = Donation.objects.aggregate(Sum('quantity'))
     total_institutions = Institution.objects.filter(donation__isnull=False).distinct().count()
