@@ -27,7 +27,7 @@
                 <li class="logged-user">
                     Witaj {{ user.first_name|default:user.username }}
                     <ul class="dropdown">
-                        <li><a href="#">Profil</a></li>
+                        <li><a href="{% url 'user_profile' %}">Profil</a></li>
                         <li><a href="#">Ustawienia</a></li>
                         <li><a href="{% url 'logout' %}">Wyloguj</a></li>
                     </ul>

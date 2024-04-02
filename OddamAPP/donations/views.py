@@ -72,7 +72,15 @@ def register_view(request):
         form = RegistrationForm()
     return render(request, 'register.html', {'form': form})
 
-
+@login_required
+def user_profile(request):
+    user = request.user
+    user_donations = Donation.objects.filter(user=user)
+    context = {
+        'user': user,
+        'donations': user_donations
+    }
+    return render(request, 'user_profile.html', context)
 @login_required
 def form(request):
     if request.method == 'POST':
