@@ -3,209 +3,319 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>{% block title %}Formularz oddania darów{% endblock %}</title>
-  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
+    <title>{% block title %}Przekaż dary{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}"/>
+    <style>
+        .welcome-message {
+            font-size: 1.5em;
+            margin-bottom: 0.5em;
+        }
+    </style>
 </head>
 <body>
-{% block content %}
 <header class="header--main-page">
-  <nav class="container container--70">
-    {% if user.is_authenticated %}
-    <ul class="nav--actions">
-      <li class="logged-user">
-        Witaj {{ user.first_name|default:user.username }}
-        <ul class="dropdown">
-          <li><a href="#">Profil</a></li>
-          <li><a href="#">Ustawienia</a></li>
-          <li><a href="{% url 'logout' %}">Wyloguj</a></li>
+    <nav class="container container--70">
+        {% if user.is_superuser %}
+            <ul class="nav--actions">
+                <li><a href="{% url 'admin:index' %}" class="btn btn--without-border">Panel administracyjny</a></li>
+            </ul>
+        {% endif %}
+        {% if user.is_authenticated %}
+            <ul class="nav--actions">
+                <li class="logged-user">
+                    Witaj {{ user.first_name|default:user.username }}
+                    <ul class="dropdown">
+                        <li><a href="{% url 'user_profile' %}">Profil</a></li>
+                        <li><a href="{% url 'user_settings' %}">Ustawienia</a></li>
+                        <li><a href="{% url 'logout' %}">Wyloguj</a></li>
+                    </ul>
+                </li>
+            </ul>
+        {% else %}
+            <ul class="nav--actions">
+                <li><a href="{% url 'login' %}" class="btn btn--small btn--without-border">Zaloguj</a></li>
+                <li><a href="{% url 'register' %}" class="btn btn--small btn--highlighted">Załóż konto</a></li>
+            </ul>
+        {% endif %}
+        <ul>
+            <li><a href="/" class="btn btn--without-border active">Start</a></li>
+            <li><a href="/#steps" class="btn btn--without-border">O co chodzi?</a></li>
+            <li><a href="/#about-us" class="btn btn--without-border">O nas</a></li>
+            <li><a href="/#help" class="btn btn--without-border">Fundacje i organizacje</a></li>
+            <li><a href="{% url 'form' %}" class="btn btn--without-border">Przekaż dary</a></li>
+            <li><a href="/#contact" class="btn btn--without-border">Kontakt</a></li>
         </ul>
-      </li>
-    </ul>
-    {% else %}
-    <ul class="nav--actions">
-      <li><a href="{% url 'login' %}" class="btn btn--small btn--without-border">Zaloguj</a></li>
-      <li><a href="{% url 'register' %}" class="btn btn--small btn--highlighted">Załóż konto</a></li>
-    </ul>
-    {% endif %}
-    <ul>
-      <li><a href="/" class="btn btn--without-border active">Start</a></li>
-      <li><a href="/#steps" class="btn btn--without-border">O co chodzi?</a></li>
-      <li><a href="/#about-us" class="btn btn--without-border">O nas</a></li>
-      <li><a href="/#help" class="btn btn--without-border">Fundacje i organizacje</a></li>
-      <li><a href="{% url 'form' %}" class="btn btn--without-border">Przekaż dary</a></li>
-      <li><a href="/#contact" class="btn btn--without-border">Kontakt</a></li>
-    </ul>
-  </nav>
+    </nav>
 
-  <div class="slogan container container--90">
-    <div class="slogan--item">
-      <h1>
-        Oddaj rzeczy, których już nie chcesz<br>
-        <span class="uppercase">potrzebującym</span>
-      </h1>
-      <div class="slogan--steps">
-        <div class="slogan--steps-title">Wystarczą 4 proste kroki:</div>
-        <ul class="slogan--steps-boxes">
-          <li>
-            <div><em>1</em><span>Wybierz rzeczy</span></div>
-          </li>
-          <li>
-            <div><em>2</em><span>Spakuj je w worki</span></div>
-          </li>
-          <li>
-            <div><em>3</em><span>Wybierz fundację</span></div>
-          </li>
-          <li>
-            <div><em>4</em><span>Zamów kuriera</span></div>
-          </li>
-        </ul>
-      </div>
+    <div class="slogan container container--90">
+        <div class="slogan--item">
+            <h1>
+                Oddaj rzeczy, których już nie chcesz<br>
+                <span class="uppercase">potrzebującym</span>
+            </h1>
+            <div class="slogan--steps">
+                <div class="slogan--steps-title">Wystarczą 4 proste kroki:</div>
+                <ul class="slogan--steps-boxes">
+                    <li>
+                        <div><em>1</em><span>Wybierz rzeczy</span></div>
+                    </li>
+                    <li>
+                        <div><em>2</em><span>Spakuj je w worki</span></div>
+                    </li>
+                    <li>
+                        <div><em>3</em><span>Wybierz fundację</span></div>
+                    </li>
+                    <li>
+                        <div><em>4</em><span>Zamów kuriera</span></div>
+                    </li>
+                </ul>
+            </div>
+        </div>
     </div>
-  </div>
 </header>
 
 <section class="form--steps">
-  <div class="form--steps-instructions">
-    <div class="form--steps-container">
-      <h3>Ważne!</h3>
-      <p data-step="1">
-        Uzupełnij szczegóły dotyczące Twoich rzeczy. Dzięki temu będziemy wiedzieć komu najlepiej je przekazać.
-      </p>
-      <p data-step="2">
-        Wszystkie rzeczy dobrej jakości i które nie są zniszczone pakuj w 60l worki. Skorzystaj z worków na śmieci.
-      </p>
-      <p data-step="3">
-        Jeśli wiesz komu chcesz pomóc, możesz wpisać nazwę tej organizacji w wyszukiwarce. Możesz też filtrować organizacje po ich lokalizacji bądź celu ich pomocy.
-      </p>
-      <p data-step="4">
-        Podaj adres oraz termin odbioru rzeczy przez kuriera.
-      </p>
-    </div>
-  </div>
   <div class="form--steps-container">
-    <div class="form--steps-counter">Krok <span>{{ step }}</span>/4</div>
+    <div class="form--steps-counter">Krok <span>1</span></div>
+    <form action="{% url 'form-confirmation' %}" method="POST">
 
-    <form action="{% url 'form' %}" method="post" id="donationForm">
-      {% csrf_token %}
-      <input type="hidden" name="step" value="{{ step }}">
-
-      <!-- Krok 1 -->
-      {% if step == '1' %}
-      <div class="form-step active" data-step="1">
+      <!-- STEP 1: class .active is switching steps -->
+      <div data-step="1" class="active">
         <h3>Zaznacz co chcesz oddać:</h3>
-        {% for category in categories %}
+
+        {% for i in categories %}
         <div class="form-group form-group--checkbox">
           <label>
-            <input type="checkbox" name="categories" value="{{ category.id }}">
+            <input
+              type="checkbox"
+              name="categories"
+              value="{{ i.id }}"
+            />
             <span class="checkbox"></span>
-            <span class="description">{{ category.name }}</span>
+            <span class="description"
+              >{{ i.name }}</span
+            >
           </label>
         </div>
         {% endfor %}
+        <input name= "checked_categories" class="categories_all" type="hidden" value="">
+
         <div class="form-group form-group--buttons">
           <button type="button" class="btn next-step">Dalej</button>
         </div>
       </div>
-      {% endif %}
 
-      <!-- Krok 2 -->
-      {% if step == '2' %}
-      <div class="form-step" data-step="2">
+      <!-- STEP 2 -->
+      <div data-step="2">
         <h3>Podaj liczbę 60l worków, w które spakowałeś/aś rzeczy:</h3>
+
         <div class="form-group form-group--inline">
           <label>
             Liczba 60l worków:
             <input type="number" name="bags" step="1" min="1" />
           </label>
         </div>
+
         <div class="form-group form-group--buttons">
           <button type="button" class="btn prev-step">Wstecz</button>
           <button type="button" class="btn next-step">Dalej</button>
         </div>
       </div>
-      {% endif %}
 
-      <!-- Krok 3 -->
-      {% if step == '3' %}
-      <div class="form-step" data-step="3">
-        <h3>Wybierz organizację, której chcesz pomóc:</h3>
-        {% for institution in institutions %}
-        <div class="form-group form-group--checkbox">
+
+
+      <!-- STEP 3 -->
+      <div data-step="3">
+        <h3>Wybierz organizacje której chcesz pomóc:</h3>
+        {% for i in institutions %}
+        <div class="form-group form-group--checkbox institution" data-categories="{% for c in i.categories.all %} {{ c.id }} {% endfor %}">
           <label>
-            <input type="radio" name="organization" value="{{ institution.id }}">
+            <input type="radio" name="organization" value="{{ i.id }}" />
             <span class="checkbox radio"></span>
             <span class="description">
-              <div class="title">{{ institution.name }}</div>
-              <div class="subtitle">{{ institution.description }}</div>
+              <div class="title">“<b>{{ i.name }}</b>”<span style="font-size: 13px; color: #7F8177"> -- {{ i.get_type_display }}</span> </div>
+              <div class="subtitle">
+                Mission: {{ i.description }}
+              </div>
             </span>
           </label>
         </div>
         {% endfor %}
+        <input type="hidden" name="checked_organization" class="checked_org" value="">
+<!--         document.querySelectorAll('.institution')[0].dataset.categories -->
         <div class="form-group form-group--buttons">
           <button type="button" class="btn prev-step">Wstecz</button>
           <button type="button" class="btn next-step">Dalej</button>
         </div>
       </div>
-      {% endif %}
 
-      <!-- Krok 4 -->
-      {% if step == '4' %}
-      <div class="form-step" data-step="4">
-        <h3>Podaj adres oraz termin odbioru rzeczy przez kuriera:</h3>
-        <!-- Tutaj formularz z danymi adresowymi i terminem odbioru -->
+      <!-- STEP 4 -->
+      <div data-step="4">
+        <h3>Enter the address and date of things that are set to be picked:</h3>
+
+        <div class="form-section form-section--columns">
+          <div class="form-section--column">
+            <h4>Address</h4>
+            <div class="form-group form-group--inline">
+              <label> Street <input type="text" name="address" /> </label>
+            </div>
+
+            <div class="form-group form-group--inline">
+              <label> City <input type="text" name="city" /> </label>
+            </div>
+
+            <div class="form-group form-group--inline">
+              <label>
+                Postcode <input type="number" name="zip_code" />
+              </label>
+            </div>
+
+            <div class="form-group form-group--inline">
+              <label>
+                Telephone number <input type="number" name="phone_number" />
+              </label>
+            </div>
+          </div>
+
+          <div class="form-section--column">
+            <h4>Pick up date</h4>
+            <div class="form-group form-group--inline">
+              <label> Data <input type="date" name="data" /> </label>
+            </div>
+
+            <div class="form-group form-group--inline">
+              <label> Time <input type="time" name="time" /> </label>
+            </div>
+
+            <div class="form-group form-group--inline">
+              <label>
+                Comments for courier
+                <textarea name="more_info" rows="5"></textarea>
+              </label>
+            </div>
+          </div>
+        </div>
         <div class="form-group form-group--buttons">
-          <button type="button" class="btn prev-step">Wstecz</button>
-          <button type="button" class="btn next-step">Dalej</button>
+          <button type="button" class="btn prev-step">Previous</button>
+          <button type="button" class="btn next-step summary-button">Next</button>
         </div>
       </div>
-      {% endif %}
 
-      <!-- Podsumowanie -->
-      {% if step == 'summary' %}
-      <div class="form-step" data-step="summary">
-        <h3>Podsumowanie Twojej darowizny</h3>
-        <!-- Tutaj wyświetlenie podsumowania z sesji -->
+      <!-- STEP 5 -->
+      <div data-step="5">
+        <h3>Podsumowanie</h3>
+
+        <div class="summary">
+          <div class="form-section">
+            <h4>Dajesz:</h4>
+            <ul>
+              <li>
+                <span class="icon icon-bag"></span>
+                <span class="summary--text"></span>
+              </li>
+
+              <li>
+                <span class="icon icon-hand"></span>
+                <span class="summary--text"></span>
+              </li>
+            </ul>
+          </div>
+
+          <div class="form-section form-section--columns">
+            <div class="form-section--column">
+              <h4>Wybrana lokalizacja:</h4>
+              <ul>
+                <li></li>
+                <li id="id2"><input name="city_submit" type="hidden" value="dsa"></li>
+                <li id="id3"><input name="postcode_submit" type="hidden" value=""></li>
+                <li id="id4"><input name="tel_submit" type="hidden" value=""></li>
+              </ul>
+            </div>
+
+            <div class="form-section--column">
+              <h4>Data odbioru:</h4>
+              <ul id="myList2">
+                <li id="id5"><input name="date_submit" type="hidden" value=""></li>
+                <li id="id6"><input name="time_submit" type="hidden" value=""></li>
+                <li id="id7"><input name="comments_submit" type="hidden" value=""></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
         <div class="form-group form-group--buttons">
           <button type="button" class="btn prev-step">Wstecz</button>
-          <button type="submit" class="btn">Potwierdzam</button>
+          <button type="submit" class="btn">Potwierdź</button>
         </div>
       </div>
-      {% endif %}
+      {% csrf_token %}
     </form>
   </div>
 </section>
 
-{% endblock content %}
 <footer>
-  <div class="contact">
-    <h2>Skontaktuj się z nami</h2>
-    <h3>Formularz kontaktowy</h3>
-    <form class="form--contact">
-      <div class="form-group form-group--50">
-        <input type="text" name="name" placeholder="Imię" />
-      </div>
-      <div class="form-group form-group--50">
-        <input type="text" name="surname" placeholder="Nazwisko" />
-      </div>
-      <div class="form-group">
-        <textarea name="message" placeholder="Wiadomość" rows="1"></textarea>
-      </div>
-      <button class="btn" type="submit">Wyślij</button>
-    </form>
-  </div>
-  <div class="bottom-line">
-    <span class="bottom-line--copy">Copyright &copy; 2018</span>
-    <div class="bottom-line--icons">
-      <a href="#" class="btn btn--small"><img src="{% static 'images/icon-facebook.svg' %}" /></a>
-      <a href="#" class="btn btn--small"><img src="{% static 'images/icon-instagram.svg' %}" /></a>
+    <div class="contact">
+        <h2>Skontaktuj się z nami</h2>
+        <h3>Formularz kontaktowy</h3>
+        <form class="form--contact">
+            <div class="form-group form-group--50">
+                <input type="text" name="name" placeholder="Imię"/>
+            </div>
+            <div class="form-group form-group--50">
+                <input type="text" name="surname" placeholder="Nazwisko"/>
+            </div>
+            <div class="form-group">
+                <textarea name="message" placeholder="Wiadomość" rows="1"></textarea>
+            </div>
+            <button class="btn" type="submit">Wyślij</button>
+        </form>
     </div>
-  </div>
+    <div class="bottom-line">
+        <span class="bottom-line--copy">Copyright &copy; 2018</span>
+        <div class="bottom-line--icons">
+            <a href="#" class="btn btn--small"><img src="{% static 'images/icon-facebook.svg' %}" alt="Facebook"/></a>
+            <a href="#" class="btn btn--small"><img src="{% static 'images/icon-instagram.svg' %}" alt="Instagram"/></a>
+        </div>
+    </div>
 </footer>
+
 {% block extra_js %}
 <script src="{% static 'js/app.js' %}"></script>
+    <script>
+  // Funkcja uruchamiana, gdy użytkownik klika przycisk "Next" w kroku 4
+  document.querySelector('.summary-button').addEventListener('click', function() {
+    // Pobierz wartości z formularza
+    var bags = document.querySelector('input[name="bags"]').value;
+    var categories = [...document.querySelectorAll('input[name="categories"]:checked')].map(input => input.nextElementSibling.textContent).join(", ");
+    var organization = document.querySelector('input[name="organization"]:checked').nextElementSibling.nextElementSibling.firstElementChild.textContent;
+    var address = document.querySelector('input[name="address"]').value;
+    var city = document.querySelector('input[name="city"]').value;
+    var postcode = document.querySelector('input[name="postcode"]').value;
+    var phone = document.querySelector('input[name="phone"]').value;
+    var date = document.querySelector('input[name="data"]').value;
+    var time = document.querySelector('input[name="time"]').value;
+    var more_info = document.querySelector('textarea[name="more_info"]').value;
+
+    // Wstaw wartości do podsumowania
+    var summaryTextList = document.querySelectorAll('.summary--text');
+    summaryTextList[0].textContent = bags + " worków: " + categories;
+    summaryTextList[1].textContent = "Dla: " + organization;
+
+    // Wybrane miejsce odbioru
+    document.getElementById('id2').value = city;
+    document.getElementById('id3').value = postcode;
+    document.getElementById('id4').value = phone;
+
+    // Wybrana data odbioru
+    document.getElementById('id5').value = date;
+    document.getElementById('id6').value = time;
+    document.getElementById('id7').value = more_info;
+  });
+</script>
+
 {% endblock extra_js %}
 </body>
 </html>

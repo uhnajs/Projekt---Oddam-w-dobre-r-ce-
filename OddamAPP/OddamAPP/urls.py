@@ -17,21 +17,16 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from django.contrib.auth import views as auth_views
-from donations.views import landing_page, user_profile, user_settings, add_donation, login_view, register_view, form, login_view, logout_view
-
+from donations.views import landing_page, user_profile, user_settings, login_view, register_view, logout_view, AddDonation
 
 urlpatterns = [
     path('ustawienia/', user_settings, name='user_settings'),
     path('profil/', user_profile, name='user_profile'),
     path('admin/', admin.site.urls),
     path('', landing_page, name='landing-page'),
-    path('add-donation/', add_donation, name='add-donation'),
     path('login/', login_view, name='login'),
     path('register/', register_view, name='register'),
-    path('form/', form, name='form'),
+    path('form/', AddDonation.as_view(), name='form'),
     path('logout/', logout_view, name='logout'),
-    path('password_reset/', auth_views.PasswordResetView.as_view(), name='password_reset'),
-    path('password_reset/done/', auth_views.PasswordResetDoneView.as_view(), name='password_reset_done'),
-    path('reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
-    path('reset/done/', auth_views.PasswordResetCompleteView.as_view(), name='password_reset_complete'),
+    path('form-confirmation/', AddDonation.as_view(), name='form-confirmation')
 ]

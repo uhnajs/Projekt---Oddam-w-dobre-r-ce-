@@ -21,26 +21,28 @@
 {% block header %}
 <header class="header--main-page">
 <nav class="container container--70">
-        {% if user.is_authenticated %}
-            <ul class="nav--actions">
-                {% if user.is_superuser %}
-                    <li><a href="{% url 'admin:index' %}" class="btn btn--without-border">Panel administracyjny</a></li>
-                {% endif %}
-                <li class="logged-user">
-                    Witaj {{ user.first_name|default:user.username }}
-                    <ul class="dropdown">
-                        <li><a href="{% url 'user_profile' %}">Profil</a></li>
-                        <li><a href="{% url 'user_settings' %}">Ustawienia</a></li>
-                        <li><a href="{% url 'logout' %}">Wyloguj</a></li>
-                    </ul>
-                </li>
-            </ul>
-        {% else %}
-            <ul class="nav--actions">
-                <li><a href="{% url 'login' %}" class="btn btn--small btn--without-border">Zaloguj</a></li>
-                <li><a href="{% url 'register' %}" class="btn btn--small btn--highlighted">Załóż konto</a></li>
-            </ul>
-        {% endif %}
+    {% if user.is_superuser %}
+        <ul class="nav--actions">
+            <li><a href="{% url 'admin:index' %}" class="btn btn--without-border">Panel administracyjny</a></li>
+        </ul>
+    {% endif %}
+    {% if user.is_authenticated %}
+        <ul class="nav--actions">
+            <li class="logged-user">
+                Witaj {{ user.first_name|default:user.username }}
+                <ul class="dropdown">
+                    <li><a href="{% url 'user_profile' %}">Profil</a></li>
+                    <li><a href="{% url 'user_settings' %}">Ustawienia</a></li>
+                    <li><a href="{% url 'logout' %}">Wyloguj</a></li>
+                </ul>
+            </li>
+        </ul>
+    {% else %}
+        <ul class="nav--actions">
+            <li><a href="{% url 'login' %}" class="btn btn--small btn--without-border">Zaloguj</a></li>
+            <li><a href="{% url 'register' %}" class="btn btn--small btn--highlighted">Załóż konto</a></li>
+        </ul>
+    {% endif %}
 <ul>
     <li><a href="/" class="btn btn--without-border active">Start</a></li>
     <li><a href="/#steps" class="btn btn--without-border">O co chodzi?</a></li>
@@ -111,87 +113,64 @@
       <div class="about-us--image"><img src="{% static '/images/about-us.jpg' %}" alt="People in circle" /></div>
     </section>
 
-     <section id="help" class="help">
-      <h2>Komu pomagamy?</h2>
-
-      <ul class="help--buttons">
-        <li data-id="1"><a href="#" class="btn btn--without-border active">Fundacjom</a></li>
-        <li data-id="2"><a href="#" class="btn btn--without-border">Organizacjom pozarządowym</a></li>
-        <li data-id="3"><a href="#" class="btn btn--without-border">Lokalnym zbiórkom</a></li>
-      </ul>
-
-      <!-- SLIDE 1 -->
-        <div class="help--slides active" data-id="1">
-          <p>W naszej bazie znajdziesz listę zweryfikowanych Fundacji, z którymi współpracujemy. Możesz sprawdzić czym się zajmują, komu pomagają i czego potrzebują.</p>
-          <ul class="help--slides-items">
-            {% for foundation in foundations %}
-            <li>
-              <div class="col">
-                <div class="title">{{ foundation.name }}</div>
-                <div class="subtitle">Cel i misja: {{ foundation.description }}</div>
-              </div>
-              <div class="col"><div class="text">{{ foundation.categories.all|join:", " }}</div></div>
-            </li>
-            {% endfor %}
-          </ul>
-        <!-- Pagination
-        <ul class="help--slides-pagination">
-          <li><a href="#" class="btn btn--small btn--without-border active" data-page="1">1</a></li>
-          <li><a href="#" class="btn btn--small btn--without-border" data-page="2">2</a></li>
-          <li><a href="#" class="btn btn--small btn--without-border" data-page="3">3</a></li>
-        </ul>
-        -->
-      </div>
 
 
-      <!-- SLIDE 2 -->
-          <div class="help--slides" data-id="2">
-          <p>Tutaj prezentujemy organizacje pozarządowe, z którymi współpracujemy. Znajdziesz informacje o ich działaniach i potrzebach.</p>
-          <ul class="help--slides-items">
-            {% for ngo in ngos %}
-            <li>
-              <div class="col">
-                <div class="title">{{ ngo.name }}</div>
-                <div class="subtitle">Cel i misja: {{ ngo.description }}</div>
-              </div>
-              <div class="col"><div class="text">{{ ngo.categories.all|join:", " }}</div></div>
-            </li>
-            {% endfor %}
-          </ul>
-        <!-- Pagination
-        <ul class="help--slides-pagination">
-          <li><a href="#" class="btn btn--small btn--without-border active" data-page="1">1</a></li>
-          <li><a href="#" class="btn btn--small btn--without-border" data-page="2">2</a></li>
-          <li><a href="#" class="btn btn--small btn--without-border" data-page="3">3</a></li>
-          <li><a href="#" class="btn btn--small btn--without-border" data-page="4">4</a></li>
-          <li><a href="#" class="btn btn--small btn--without-border" data-page="5">5</a></li>
-        </ul>
-        -->
-      </div>
+<section id="help" class="help">
+  <h2>Komu pomagamy?</h2>
+  <ul class="help--buttons">
+    <li data-id="1" class="btn btn--without-border active">Fundacjom</li>
+    <li data-id="2" class="btn btn--without-border">Organizacjom pozarządowym</li>
+    <li data-id="3" class="btn btn--without-border">Lokalnym zbiórkom</li>
+  </ul>
 
-      <!-- SLIDE 3 -->
-        <div class="help--slides" data-id="3">
-          <p>Zobacz lokalne zbiórki, które wspieramy. Każda z nich odgrywa ważną rolę w naszej społeczności.</p>
-          <ul class="help--slides-items">
-            {% for collection in local_collections %}
-            <li>
-              <div class="col">
-                <div class="title">{{ collection.name }}</div>
-                <div class="subtitle">Cel i misja: {{ collection.description }}</div>
-              </div>
-              <div class="col"><div class="text">{{ collection.categories.all|join:", " }}</div></div>
-            </li>
-            {% endfor %}
-          </ul>
+  <!-- SLIDE 1: Fundacje -->
+  <div class="help--slides active" data-id="1">
+    <p>W naszej bazie znajdziesz listę zweryfikowanych Fundacji, z którymi współpracujemy. Możesz sprawdzić czym się zajmują, komu pomagają i czego potrzebują.</p>
+    <ul class="help--slides-items">
+      {% for foundation in foundations %}
+      <li>
+        <div class="col">
+          <div class="title">{{ foundation.name }}</div>
+          <div class="subtitle">Cel i misja: {{ foundation.description }}</div>
+        </div>
+        <div class="col"><div class="text">{{ foundation.categories.all|join:", " }}</div></div>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
 
-        <!-- Pagination
-        <ul class="help--slides-pagination">
-          <li><a href="#" class="btn btn--small btn--without-border active" data-page="1">1</a></li>
-          <li><a href="#" class="btn btn--small btn--without-border" data-page="2">2</a></li>
-        </ul>
-        -->
-      </div>
-    </section>
+  <!-- SLIDE 2: Organizacje pozarządowe -->
+  <div class="help--slides" data-id="2">
+    <p>Tutaj prezentujemy organizacje pozarządowe, z którymi współpracujemy. Znajdziesz informacje o ich działaniach i potrzebach.</p>
+    <ul class="help--slides-items">
+      {% for ngo in ngos %}
+      <li>
+        <div class="col">
+          <div class="title">{{ ngo.name }}</div>
+          <div class="subtitle">Cel i misja: {{ ngo.description }}</div>
+        </div>
+        <div class="col"><div class="text">{{ ngo.categories.all|join:", " }}</div></div>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <!-- SLIDE 3: Lokalne zbiórki -->
+  <div class="help--slides" data-id="3">
+    <p>Zobacz lokalne zbiórki, które wspieramy. Każda z nich odgrywa ważną rolę w naszej społeczności.</p>
+    <ul class="help--slides-items">
+      {% for collection in local_collections %}
+      <li>
+        <div class="col">
+          <div class="title">{{ collection.name }}</div>
+          <div class="subtitle">Cel i misja: {{ collection.description }}</div>
+        </div>
+        <div class="col"><div class="text">{{ collection.categories.all|join:", " }}</div></div>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+</section>
 
     {% block footer %}
     <footer>
